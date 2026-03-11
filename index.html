@@ -6,57 +6,128 @@
     <title>黄油宠物洗护店 - 预约登记</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* 选中项目的奶油黄样式 */
         .selected-item {
-            background-color: #fef9c3 !important; /* 奶油黄背景 */
-            border-color: #eab308 !important; /* 黄油色边框 */
+            background-color: #fef9c3 !important;
+            border-color: #eab308 !important;
             transform: scale(1.02);
+        }
+        /* 弹窗背景模糊动画 */
+        #success-modal {
+            transition: opacity 0.3s ease;
         }
     </style>
 </head>
-<body class="bg-yellow-50 min-h-screen p-4 flex flex-col items-center">
-    <div class="max-w-md w-full bg-white rounded-3xl shadow-xl p-6 mt-10">
+<body class="bg-yellow-50 min-h-screen p-4 flex flex-col items-center font-sans">
+    
+    <div class="max-w-md w-full bg-white rounded-3xl shadow-xl p-6 mt-8 mb-8">
         <h1 class="text-3xl font-bold text-yellow-700 text-center mb-2">🧈 黄油宠物洗护店</h1>
-        <p class="text-gray-500 text-center mb-8">像黄油一样治愈的洗护体验</p>
+        <p class="text-gray-400 text-center mb-8 text-sm">像黄油一样治愈的洗护体验</p>
 
+        <label class="block text-sm font-bold text-gray-700 mb-3 ml-1">第一步：选择洗护项目</label>
         <div class="space-y-3 mb-8" id="service-options">
-            <div onclick="selectService(this, '基础洗护')" class="cursor-pointer border-2 border-gray-100 rounded-2xl p-4 transition-all hover:bg-gray-50 flex justify-between items-center">
+            <div onclick="selectService(this, '基础洗护')" class="cursor-pointer border-2 border-gray-100 rounded-2xl p-4 transition-all hover:bg-yellow-50 flex justify-between items-center">
                 <span class="font-bold text-gray-700">基础洗护</span>
                 <span class="text-yellow-600 font-bold">¥58 起</span>
             </div>
-            <div onclick="selectService(this, '深度SPA')" class="cursor-pointer border-2 border-gray-100 rounded-2xl p-4 transition-all hover:bg-gray-50 flex justify-between items-center">
+            <div onclick="selectService(this, '深度SPA')" class="cursor-pointer border-2 border-gray-100 rounded-2xl p-4 transition-all hover:bg-yellow-50 flex justify-between items-center">
                 <span class="font-bold text-gray-700">深度SPA</span>
                 <span class="text-yellow-600 font-bold">¥128 起</span>
             </div>
-            <div onclick="selectService(this, '全套造型')" class="cursor-pointer border-2 border-gray-100 rounded-2xl p-4 transition-all hover:bg-gray-50 flex justify-between items-center">
+            <div onclick="selectService(this, '全套造型')" class="cursor-pointer border-2 border-gray-100 rounded-2xl p-4 transition-all hover:bg-yellow-50 flex justify-between items-center">
                 <span class="font-bold text-gray-700">全套造型</span>
                 <span class="text-yellow-600 font-bold">¥188 起</span>
             </div>
         </div>
 
-        <form action="https://formspree.io/f/xlgpbrwq" method="POST" class="space-y-4">
+        <label class="block text-sm font-bold text-gray-700 mb-3 ml-1">第二步：填写联系信息</label>
+        <form id="pet-form" action="https://formspree.io/f/xlgpbrwq" method="POST" class="space-y-4">
             <input type="hidden" name="selected_service" id="selected-service-input">
+            
             <div>
-                <label class="block text-sm font-medium text-gray-600 mb-1">宠物昵称</label>
-                <input type="text" name="pet_name" required placeholder="如：小团子" class="w-full border-gray-200 border-2 rounded-xl p-3 focus:outline-none focus:border-yellow-400">
+                <input type="text" name="pet_name" required placeholder="宠物昵称（如：小团子）" class="w-full border-gray-100 border-2 rounded-2xl p-4 focus:outline-none focus:border-yellow-400 bg-gray-50 transition-all">
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-600 mb-1">联系电话</label>
-                <input type="tel" name="phone" required placeholder="请输入手机号" class="w-full border-gray-200 border-2 rounded-xl p-3 focus:outline-none focus:border-yellow-400">
+                <input type="tel" name="phone" required placeholder="联系电话" class="w-full border-gray-100 border-2 rounded-2xl p-4 focus:outline-none focus:border-yellow-400 bg-gray-50 transition-all">
             </div>
-            <button type="submit" class="w-full bg-yellow-400 text-yellow-900 font-bold py-4 rounded-2xl shadow-md hover:bg-yellow-500 transition-colors mt-4">
+            
+            <button type="submit" id="submit-btn" class="w-full bg-yellow-400 text-yellow-900 font-bold py-4 rounded-2xl shadow-lg shadow-yellow-200 hover:bg-yellow-500 transition-all active:scale-95 mt-4">
                 立即提交预约
             </button>
         </form>
     </div>
 
+    <div id="success-modal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-6 z-50">
+        <div class="bg-white rounded-[2rem] p-10 max-w-xs w-full text-center shadow-2xl">
+            <div class="w-20 h-20 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7" />
+                </svg>
+            </div>
+            <h2 class="text-2xl font-black text-gray-800 mb-2">登记完成</h2>
+            <p class="text-gray-500 mb-8 text-sm">我们会尽快联系您</p>
+            <button onclick="closeModal()" class="w-full bg-gray-900 text-white font-bold py-4 rounded-2xl hover:bg-black transition-colors">
+                关闭
+            </button>
+        </div>
+    </div>
+
     <script>
+        // 1. 选择洗护项目
         function selectService(element, serviceName) {
             const options = document.querySelectorAll('#service-options > div');
             options.forEach(opt => opt.classList.remove('selected-item'));
             element.classList.add('selected-item');
             document.getElementById('selected-service-input').value = serviceName;
         }
+
+        // 2. 表单提交逻辑
+        const form = document.getElementById("pet-form");
+        const modal = document.getElementById("success-modal");
+        const btn = document.getElementById("submit-btn");
+
+        form.addEventListener("submit", async function(event) {
+            event.preventDefault(); // 阻止原有的页面跳转
+            
+            // 简单校验：必须选择一个项目
+            if (!document.getElementById('selected-service-input').value) {
+                alert("请先选择一个洗护项目哦~");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "提交中...";
+
+            const data = new FormData(event.target);
+            
+            fetch(event.target.action, {
+                method: form.method,
+                body: data,
+                headers: { 'Accept': 'application/json' }
+            }).then(response => {
+                if (response.ok) {
+                    // 显示弹窗
+                    modal.classList.remove('hidden');
+                    // 重置表单和选中状态
+                    form.reset();
+                    const options = document.querySelectorAll('#service-options > div');
+                    options.forEach(opt => opt.classList.remove('selected-item'));
+                    document.getElementById('selected-service-input').value = "";
+                } else {
+                    alert("提交出错了，请稍后再试");
+                }
+            }).catch(error => {
+                alert("网络好像有点问题");
+            }).finally(() => {
+                btn.disabled = false;
+                btn.innerText = "立即提交预约";
+            });
+        });
+
+        // 3. 关闭弹窗
+        function closeModal() {
+            modal.classList.add('hidden');
+        }
     </script>
 </body>
 </html>
-
