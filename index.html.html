@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Butter - 宠物洗护店</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F0F9FF;
+        }
+        
+        .butter-blue {
+            background-color: #3B82F6;
+        }
+        
+        .butter-blue-light {
+            background-color: #DBEAFE;
+        }
+        
+        .text-butter {
+            color: #1E40AF;
+        }
+        
+        .btn-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4);
+        }
+        
+        .btn-pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        .service-card {
+            transition: all 0.3s ease;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px -10px rgba(59, 130, 246, 0.3);
+        }
+        
+        .service-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .service-details.active {
+            max-height: 200px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <!-- 顶部区域 -->
+    <header class="py-12 px-6 text-center">
+        <h1 class="text-4xl md:text-5xl font-bold text-butter mb-2">Butter</h1>
+        <p class="text-lg md:text-xl text-blue-800/80">像黄油般治愈的洗护体验</p>
+    </header>
+    
+    <!-- 中间价目表 -->
+    <main class="flex-1 px-6 py-8">
+        <div class="bg-white rounded-2xl shadow-lg p-8">
+            <h2 class="text-2xl font-semibold text-butter mb-6 text-center">服务价格</h2>
+            
+            <div class="space-y-6">
+                <!-- 基础洗护 -->
+                <div class="service-card butter-blue-light rounded-lg overflow-hidden">
+                    <div class="flex justify-between items-center p-4 cursor-pointer" onclick="toggleDetails('basic')">
+                        <div class="flex items-center">
+                            <i class="fa fa-tint text-butter mr-3 text-xl"></i>
+                            <span class="text-lg font-medium text-butter">基础洗护</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="text-lg font-semibold text-butter mr-3">58元起</span>
+                            <i class="fa fa-chevron-down text-butter transition-transform duration-300" id="basic-icon"></i>
+                        </div>
+                    </div>
+                    <div class="service-details px-4 pb-4" id="basic-details">
+                        <ul class="text-butter space-y-2">
+                            <li class="flex items-center"><i class="fa fa-paw mr-2"></i> 剪指甲</li>
+                            <li class="flex items-center"><i class="fa fa-paw mr-2"></i> 清理耳道</li>
+                            <li class="flex items-center"><i class="fa fa-paw mr-2"></i> 两次洗香香</li>
+                            <li class="flex items-center"><i class="fa fa-paw mr-2"></i> 吹干拉毛</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- 深度SPA -->
+                <div class="service-card butter-blue-light rounded-lg overflow-hidden">
+                    <div class="flex justify-between items-center p-4 cursor-pointer" onclick="toggleDetails('spa')">
+                        <div class="flex items-center">
+                            <i class="fa fa-paw text-butter mr-3 text-xl"></i>
+                            <span class="text-lg font-medium text-butter">深度SPA</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="text-lg font-semibold text-butter mr-3">128元起</span>
+                            <i class="fa fa-chevron-down text-butter transition-transform duration-300" id="spa-icon"></i>
+                        </div>
+                    </div>
+                    <div class="service-details px-4 pb-4" id="spa-details">
+                        <ul class="text-butter space-y-2">
+                            <li class="flex items-center"><i class="fa fa-paw mr-2"></i> 基础洗护全部内容</li>
+                            <li class="flex items-center"><i class="fa fa-paw mr-2"></i> 精油按摩</li>
+                            <li class="flex items-center"><i class="fa fa-paw mr-2"></i> 深层护理</li>
+                            <li class="flex items-center"><i class="fa fa-paw mr-2"></i> 护毛素护理</li>
+                            <li class="flex items-center"><i class="fa fa-paw mr-2"></i> 香氛喷雾</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- 全手剪造型 -->
+                <div class="service-card butter-blue-light rounded-lg overflow-hidden">
+                    <div class="flex justify-between items-center p-4 cursor-pointer" onclick="toggleDetails('styling')">
+                        <div class="flex items-center">
+                            <i class="fa fa-scissors text-butter mr-3 text-xl"></i>
+                            <span class="text-lg font-medium text-butter">全手剪造型</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="text-lg font-semibold text-butter mr-3">198元起</span>
+                            <i class="fa fa-chevron-down text-butter transition-transform duration-300" id="styling-icon"></i>
+                        </div>
+                    </div>
+                    <div class="service-details px-4 pb-4" id="styling-details">
+                        <ul class="text-butter space-y-2">
+                            <li class="flex items-center"><i class="fa fa-paw mr-2"></i> 深度SPA全部内容</li>
+                            <li class="flex items-center"><i class="fa fa-paw mr-2"></i> 全手剪造型设计</li>
+                            <li class="flex items-center"><i class="fa fa-paw mr-2"></i> 精细修剪</li>
+                            <li class="flex items-center"><i class="fa fa-paw mr-2"></i> 造型定型</li>
+                            <li class="flex items-center"><i class="fa fa-paw mr-2"></i> 专业建议</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- 底部预约按钮 -->
+    <footer class="py-8 px-6">
+        <button class="w-full butter-blue text-white text-lg font-semibold py-4 rounded-full btn-hover transition-all duration-300 btn-pulse" onclick="showBookingModal()">
+            立即预约
+        </button>
+    </footer>
+    
+    <!-- 预约表单弹窗 -->
+    <div id="booking-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl p-8 max-w-xs w-full mx-4">
+            <h3 class="text-xl font-semibold text-butter mb-6 text-center">预约服务</h3>
+            <form id="booking-form">
+                <div class="mb-4">
+                    <label class="block text-butter font-medium mb-2">您的姓名</label>
+                    <input type="text" class="w-full px-4 py-2 border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="请输入您的姓名" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-butter font-medium mb-2">手机号码</label>
+                    <input type="tel" class="w-full px-4 py-2 border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="请输入您的手机号码" required>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-butter font-medium mb-2">宠物种类</label>
+                    <select class="w-full px-4 py-2 border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        <option value="">请选择宠物种类</option>
+                        <option value="猫">猫</option>
+                        <option value="犬">犬</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full butter-blue text-white font-semibold py-3 rounded-full transition-all duration-300 hover:opacity-90">
+                    确认提交
+                </button>
+                <button type="button" class="w-full mt-3 text-butter font-semibold py-3 rounded-full border border-blue-200 transition-all duration-300 hover:bg-blue-50" onclick="closeBookingModal()">
+                    取消
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 预约成功弹窗 -->
+    <div id="success-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl p-8 max-w-xs w-full mx-4 text-center">
+            <div class="butter-blue w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fa fa-check text-white text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-butter mb-2">预约信息已收到！</h3>
+            <p class="text-butter mb-6">我们将尽快与您联系</p>
+            <button class="w-full butter-blue text-white font-semibold py-3 rounded-full transition-all duration-300 hover:opacity-90" onclick="closeSuccessModal()">
+                关闭
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        // 切换服务详情
+        function toggleDetails(service) {
+            const details = document.getElementById(service + '-details');
+            const icon = document.getElementById(service + '-icon');
+            
+            details.classList.toggle('active');
+            if (details.classList.contains('active')) {
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                icon.style.transform = 'rotate(0)';
+            }
+        }
+        
+        // 显示预约表单弹窗
+        function showBookingModal() {
+            document.getElementById('booking-modal').classList.remove('hidden');
+        }
+        
+        // 关闭预约表单弹窗
+        function closeBookingModal() {
+            document.getElementById('booking-modal').classList.add('hidden');
+        }
+        
+        // 显示成功弹窗
+        function showSuccessModal() {
+            document.getElementById('success-modal').classList.remove('hidden');
+        }
+        
+        // 关闭成功弹窗
+        function closeSuccessModal() {
+            document.getElementById('success-modal').classList.add('hidden');
+        }
+        
+        // 表单提交处理
+        document.getElementById('booking-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 获取表单数据
+            const formData = new FormData(this);
+            const bookingData = {
+                name: this.elements[0].value,
+                phone: this.elements[1].value,
+                petType: this.elements[2].value
+            };
+            
+            // 在控制台打印数据
+            console.log('预约信息:', bookingData);
+            
+            // 关闭表单弹窗
+            closeBookingModal();
+            
+            // 显示成功提示
+            showSuccessModal();
+        });
+    </script>
+</body>
+</html>
