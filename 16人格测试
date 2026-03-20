@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>高阶人格深度解析</title>
+    <style>
+        :root {
+            --primary: #2563EB;      
+            --bg-color: #F8FAFC;     
+            --text-main: #0F172A;
+            --text-sub: #64748B;
+            --card-bg: #FFFFFF;
+        }
+
+        body { background: var(--bg-color); color: var(--text-main); font-family: -apple-system, "PingFang SC", sans-serif; margin: 0; display: flex; justify-content: center; }
+        .app-container { width: 100%; max-width: 500px; min-height: 100vh; display: flex; flex-direction: column; position: relative; background: #fff; box-shadow: 0 0 40px rgba(0,0,0,0.05); }
+
+        /* --- 答题页 UI --- */
+        .quiz-section { padding: 40px 24px; flex: 1; display: flex; flex-direction: column; }
+        .header-progress { margin-bottom: 50px; }
+        .progress-text-row { display: flex; justify-content: space-between; font-size: 16px; font-weight: 700; color: var(--primary); margin-bottom: 14px; letter-spacing: 1px; }
+        .track { width: 100%; height: 6px; background: #E2E8F0; border-radius: 10px; overflow: hidden; }
+        .fill { height: 100%; background: linear-gradient(90deg, #60A5FA, var(--primary)); transition: width 0.3s; border-radius: 10px; }
+        .question-text { font-size: 24px; line-height: 1.6; font-weight: 600; margin-bottom: 50px; min-height: 100px; color: #0F172A; }
+        
+        .options-box { display: flex; flex-direction: column; gap: 16px; }
+        .btn-option { 
+            background: var(--card-bg); border: 2px solid #F1F5F9; padding: 22px 24px; border-radius: 18px; 
+            font-size: 17px; font-weight: 500; color: var(--text-main); text-align: left; 
+            cursor: pointer; transition: all 0.2s; outline: none; -webkit-tap-highlight-color: transparent;
+        }
+        .btn-option:active, .btn-option.selected { 
+            background: #EFF6FF; border-color: var(--primary); color: var(--primary);
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.15); transform: scale(0.98);
+        }
+
+        /* --- 加载屏 --- */
+        .loader-mask { position: fixed; inset: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 100; }
+        .spinner { width: 50px; height: 50px; border: 4px solid #E2E8F0; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loader-text { margin-top: 24px; font-size: 15px; font-weight: 600; color: var(--primary); letter-spacing: 1px; }
+
+        /* --- 结果页 UI --- */
+        #result-section { display: none; background: var(--bg-color); padding-bottom: 50px; animation: slideUp 0.6s ease-out; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .hero-banner { 
+            background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+            padding: 60px 24px 50px; text-align: center; color: white;
+            border-radius: 0 0 40px 40px; box-shadow: 0 15px 40px rgba(29, 78, 216, 0.25);
+            position: relative; overflow: hidden;
+        }
+        .hero-banner::after { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 60%); pointer-events: none; }
+
+        .score-circle {
+            width: 160px; height: 160px; margin: 0 auto 24px;
+            border-radius: 50%; border: 6px solid rgba(255,255,255,0.15); border-top-color: #FFFFFF;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            box-shadow: 0 0 25px rgba(255,255,255,0.2), inset 0 0 20px rgba(255,255,255,0.1); position: relative; z-index: 2;
+        }
+        .score-num { font-size: 56px; font-weight: 800; line-height: 1; letter-spacing: -2px; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .score-label { font-size: 13px; font-weight: 600; opacity: 0.95; margin-top: 8px; letter-spacing: 1px; }
+        .score-sub { font-size: 11px; opacity: 0.7; margin-top: 4px; } 
+
+        .type-heading { font-size: 38px; font-weight: 900; margin: 20px 0 10px; letter-spacing: 1px; }
+        
+        .tags-container { display: flex; justify-content: center; gap: 12px; margin-top: 24px; position: relative; z-index: 2; flex-wrap: wrap; }
+        .glass-tag { 
+            background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(12px); padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 600; letter-spacing: 1px;
+        }
+        .motto-text { margin-top: 28px; font-size: 14px; opacity: 0.9; font-weight: 500; font-style: normal; letter-spacing: 1px; }
+
+        .content-body { padding: 0 20px; margin-top: -25px; position: relative; z-index: 10; }
+        .card { background: var(--card-bg); border-radius: 24px; padding: 28px 24px; margin-bottom: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.04); border: 1px solid rgba(226, 232, 240, 0.6); }
+        .card-title { font-size: 18px; font-weight: 700; color: #0F172A; margin-bottom: 24px; display: flex; align-items: center; letter-spacing: 1px; }
+        .card-title::before { content: ''; width: 4px; height: 18px; background: var(--primary); border-radius: 2px; margin-right: 10px; }
+
+        .bar-row { margin-bottom: 20px; }
+        .bar-text { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: var(--text-sub); margin-bottom: 10px; }
+        .bar-bg { width: 100%; height: 8px; background: #F1F5F9; border-radius: 4px; overflow: hidden; }
+        .bar-fill { height: 100%; background: linear-gradient(90deg, #60A5FA, var(--primary)); border-radius: 4px; transition: width 1s; }
+
+        .desc-text { font-size: 15px; line-height: 1.8; color: #334155; }
+        .desc-section { margin-bottom: 24px; }
+        .desc-h3 { font-size: 16px; font-weight: 700; color: #0F172A; margin: 0 0 10px 0; padding-bottom: 8px; border-bottom: 1px solid #F1F5F9; }
+        
+        .btn-restart { width: calc(100% - 40px); margin: 30px 20px 10px; padding: 20px; border-radius: 20px; border: none; background: #0F172A; color: #fff; font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: 0 10px 20px rgba(15, 23, 42, 0.15); transition: 0.2s; letter-spacing: 1px; }
+        .btn-restart:active { transform: scale(0.98); }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div id="quiz-section" class="quiz-section">
+        <div class="header-progress">
+            <div class="progress-text-row">
+                <span>测试进度 <span id="current-idx">01</span></span>
+                <span>共 64 题</span>
+            </div>
+            <div class="track"><div class="fill" id="progress-fill"></div></div>
+        </div>
+
+        <div class="question-text" id="q-content">加载中...</div>
+        
+        <div class="options-box">
+            <button class="btn-option" onclick="selectAnswer(1, this)">非常不符合</button>
+            <button class="btn-option" onclick="selectAnswer(2, this)">比较不符合</button>
+            <button class="btn-option" onclick="selectAnswer(3, this)">不确定 / 中立</button>
+            <button class="btn-option" onclick="selectAnswer(4, this)">比较符合</button>
+            <button class="btn-option" onclick="selectAnswer(5, this)">非常符合</button>
+        </div>
+    </div>
+
+    <div id="loader-mask" class="loader-mask">
+        <div class="spinner"></div>
+        <div class="loader-text" id="loading-msg">正在提取核心人格因子...</div>
+    </div>
+
+    <div id="result-section">
+        <div class="hero-banner">
+            <div class="score-circle">
+                <div class="score-num" id="final-score">0</div>
+                <div class="score-label">人格分化度</div>
+                <div class="score-sub">满分 850 / 专家评级</div> 
+            </div>
+            <div class="type-heading" id="final-code">XXXX</div>
+            
+            <div class="tags-container" id="final-tags"></div>
+            <div class="motto-text" id="final-motto"></div>
+        </div>
+
+        <div class="content-body">
+            <div class="card">
+                <div class="card-title">潜意识八维坐标</div>
+                <div style="display: flex; justify-content: center; margin: 10px 0;" id="radar-container"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">底层认知倾向</div>
+                <div id="traits-container"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">千人千面深度解析</div>
+                <div class="desc-text" id="final-desc"></div>
+            </div>
+        </div>
+
+        <button class="btn-restart" onclick="location.reload()">重新进行评测</button>
+    </div>
+</div>
+
+<script>
+    const db = [];
+    const dims = ['E','S','T','J'];
+    const texts = [
+        "在社交场合中，我通常是主动主导话题走向的那个人。", "在处理复杂项目时，我更关注已有的数据和事实，而非未来的可能性。",
+        "面对团队冲突，我倾向于维护规则的客观性，即使这会引发他人的情绪不满。", "我习惯于建立清晰的时间轴和操作规范，排斥突发情况的干扰。",
+        "长时间的高频社交会极大地消耗我的内在能量。", "我更倾向于运用隐喻和宏观视角来探讨事物的底层逻辑。",
+        "在做决策时，我总是无法避免地将他人的情绪反馈纳入考量体系。", "相比于死板的流程，保留灵活的选择空间能让我发挥出更高的效率。"
+    ];
+    // 自动填充64题逻辑
+    for(let i=0; i<64; i++) { db.push({ q: texts[i%8], d: dims[i%4] }); }
+
+    let curr = 0;
+    let scores = { E:0, I:0, S:0, N:0, T:0, F:0, J:0, P:0 };
+    let totalIntensity = 0; 
+
+    function renderQuiz() {
+        document.getElementById('current-idx').innerText = String(curr + 1).padStart(2, '0');
+        document.getElementById('q-content').innerText = db[curr].q;
+        document.getElementById('progress-fill').style.width = ((curr / 64) * 100) + '%';
+        document.querySelectorAll('.btn-option').forEach(btn => btn.classList.remove('selected'));
+    }
+
+    function selectAnswer(val, el) {
+        el.classList.add('selected'); 
+        let dim = db[curr].d;
+        let rev = { E:'I', S:'N', T:'F', J:'P', I:'E', N:'S', F:'T', P:'J' };
+
+        if (val === 5) scores[dim] += 3;
+        else if (val === 4) scores[dim] += 2;
+        else if (val === 3) { scores[dim] += 1; scores[rev[dim]] += 1; }
+        else if (val === 2) scores[rev[dim]] += 2;
+        else if (val === 1) scores[rev[dim]] += 3;
+
+        if (val === 5 || val === 1) totalIntensity += 3;      
+        else if (val === 4 || val === 2) totalIntensity += 2; 
+        else if (val === 3) totalIntensity += 1;              
+
+        setTimeout(() => {
+            curr++;
+            if(curr < 64) renderQuiz();
+            else startCalculation();
+        }, 220); 
+    }
+
+    function startCalculation() {
+        document.getElementById('quiz-section').style.display = 'none';
+        document.getElementById('loader-mask').style.display = 'flex';
+        
+        // 专业级测算术语
+        const msgs = ["正在提取核心认知因子...", "检索 16 型人格常模数据...", "进行动态分化度矩阵运算...", "生成深度专属解析报告..."];
+        let step = 0;
+        document.getElementById('loading-msg').innerText = msgs[step++];
+        
+        const itv = setInterval(() => { 
+            if(step < msgs.length) document.getElementById('loading-msg').innerText = msgs[step++]; 
+        }, 800);
+
+        setTimeout(() => { clearInterval(itv); showResult(); }, 3200);
+    }
+
+    // ====== 严谨的 16 人格数据库 (彻底去除网络词汇，采用商业测评专业术语) ======
+    const metaDb = {
+        "INTJ": { alias: "顶层架构师", tags: ["战略枢纽", "系统重构", "极致理性"], motto: "在混乱的表象中，建立完美的底层秩序。" },
+        "INTP": { alias: "深度解码者", tags: ["真理捕手", "客观剖析", "思维极客"], motto: "解构已知的一切，直至触及事物的本质。" },
+        "ENTJ": { alias: "战略操盘手", tags: ["降维打击", "结果导向", "执行中枢"], motto: "将每一次不可控的阻力，转化为向前的动能。" },
+        "ENTP": { alias: "边界拓荒者", tags: ["破壁人", "跨界整合", "创新引擎"], motto: "每一次范式的颠覆，都是为了构建更优的法则。" },
+        "INFJ": { alias: "精神灯塔", tags: ["深刻洞察", "远景规划", "灵魂导师"], motto: "在现实的泥泞中仰望星空，完成内心的修行。" },
+        "INFP": { alias: "理想守望者", tags: ["价值驱动", "精神净土", "温和共情"], motto: "坚守内心的精神尺度，不为世俗的喧嚣所同化。" },
+        "ENFJ": { alias: "赋能导师", tags: ["社群引力", "潜能激发", "利他本能"], motto: "点燃他人的潜能，是实现自我领导力的最高形式。" },
+        "ENFP": { alias: "灵感捕手", tags: ["情绪引擎", "自由灵魂", "可能探索"], motto: "在未知的边界，不断拓展生命体验的无限张力。" },
+        "ISTJ": { alias: "体系构建者", tags: ["秩序基石", "极致务实", "标准制定"], motto: "最好的传承，是在坚定的守护中进行稳步创新。" },
+        "ISFJ": { alias: "隐形支柱", tags: ["细节把控", "温和坚韧", "无缝衔接"], motto: "以最柔和的力量，为团队提供最坚定的系统托底。" },
+        "ESTJ": { alias: "铁腕执行官", tags: ["规则捍卫", "雷厉风行", "效能至上"], motto: "用最锋利的执行力，拆解最复杂的现实困局。" },
+        "ESFJ": { alias: "场域共建者", tags: ["社交枢纽", "和谐引擎", "情感连接"], motto: "建立深度的信任连接，是化解一切壁垒的终极武器。" },
+        "ISTP": { alias: "现实解构者", tags: ["硬核操作", "随境应变", "逻辑实操"], motto: "真正的智慧，藏在对物理和现实世界的精准剖析中。" },
+        "ISFP": { alias: "体验美学家", tags: ["感知细腻", "体验至上", "低调内敛"], motto: "生活的最高境界，是将其雕琢为不可复制的艺术品。" },
+        "ESTP": { alias: "危机操盘手", tags: ["动态博弈", "资源整合", "高风险偏好"], motto: "在不确定性的风暴中，精准嗅出机遇的底层逻辑。" }, // 替换了捕鱼词汇
+        "ESFP": { alias: "气氛掌控者", tags: ["体验共振", "极度适应", "现场感染"], motto: "生活的艺术，在于全情投入并接纳当下的每一个瞬间。" }
+    };
+
+    // ====== 动态文案生成引擎 (千人千面核心算法) ======
+    function generateDynamicAnalysis(type, finalScore, pctData) {
+        let analysis = "";
+
+        // 1. 根据总分判定【成熟度诊断】
+        let maturityInsight = "";
+        if (finalScore >= 750) {
+            maturityInsight = `模型测算显示，你的人格分化度高达 <b>${finalScore}</b> 分（满分850）。这表明你对自己底层价值观的认知极其清晰，极少陷入精神内耗，在复杂的商业或社交环境中具备极强的主场控制力。`;
+        } else if (finalScore >= 600) {
+            maturityInsight = `你获得了 <b>${finalScore}</b> 分的测算结果，处于稳健的分化阶段。你能够在绝大多数场景下保持自洽，清楚自身的边界与核心诉求。`;
+        } else {
+            maturityInsight = `你的得分为 <b>${finalScore}</b> 分，展现出了一种难得的“认知弹性”。你并未将自己局限于某一种极端的性格范式中，而是保留了极高的环境适应与迭代潜力。`;
+        }
+
+        // 2. 根据最突出的维度生成【动态行为特征】
+        let highestTrait = Object.keys(pctData).reduce((a, b) => pctData[a] > pctData[b] ? a : b);
+        let maxPct = pctData[highestTrait];
+        let traitInsight = "";
+        
+        if (highestTrait === 'E') traitInsight = `数据表现出你高达 ${maxPct}% 的外倾倾向。这意味着你是一个纯粹的“外部能量吸收者”，你擅长通过高频的互动与信息交换来激发自身的创造力。`;
+        else if (highestTrait === 'I') traitInsight = `你具有 ${maxPct}% 的极端内倾特质。你的能量护城河构建得非常深，在独处与深度思考时，你的逻辑推演能力将呈指数级放大。`;
+        else if (highestTrait === 'S') traitInsight = `你对实感（S）的偏好达到了 ${maxPct}%。你天生屏蔽了虚无缥缈的干扰，具备极度出色的落地能力和对微小细节的把控力。`;
+        else if (highestTrait === 'N') traitInsight = `你的直觉（N）特质极为罕见地达到了 ${maxPct}%。你拥有强烈的宏观“雷达”，总能在一团乱麻中一眼洞穿事物的发展趋势。`;
+        else if (highestTrait === 'T') traitInsight = `高达 ${maxPct}% 的理性（T）主导，让你在面临关键决策时如同精密仪器。你会自动剔除情绪噪音，永远追求最优解而非最讨喜的解。`;
+        else if (highestTrait === 'F') traitInsight = `你展现了 ${maxPct}% 的超强共情力（F）。你拥有极高的情绪智力（EQ），能够在任何组织中迅速感知到不可见的“情绪暗流”并加以疏导。`;
+        else if (highestTrait === 'J') traitInsight = `你的计划性（J）得分高达 ${maxPct}%。你对失控有着本能的排斥，你强大的秩序感是你构建个人商业版图或专业壁垒的核心基石。`;
+        else if (highestTrait === 'P') traitInsight = `你拥有 ${maxPct}% 的极高感知性（P）。你拒绝被僵化的框架定义，这种“高度灵活性”让你在面对黑天鹅事件时，拥有远超常人的转圜与破局能力。`;
+
+        // 3. 结构化拼接
+        return `
+            <div class="desc-section">
+                <h3 class="desc-h3">📊 量化分化度诊断</h3>
+                <div style="margin-top:8px;">${maturityInsight}</div>
+            </div>
+            <div class="desc-section">
+                <h3 class="desc-h3">🎯 专属行为洞察</h3>
+                <div style="margin-top:8px;">在你的性格因子中，${traitInsight}</div>
+            </div>
+            <div class="desc-section" style="margin-bottom:0;">
+                <h3 class="desc-h3">💡 高阶破局建议</h3>
+                <div style="margin-top:8px;">任何极端的天赋都伴随着盲区。当你过度依赖你的核心优势时，它就会成为你的天花板。建议你在日常决策中引入 <b>逆向思维机制</b>：在得出结论前，刻意从你对立面特质（例如：理智决策前考虑情感影响，直觉判断前核实枯燥数据）的角度进行一次复盘，这不仅不会削弱你的优势，反而会极大地补全你的认知拼图。</div>
+            </div>
+        `;
+    }
+
+    function showResult() {
+        document.getElementById('loader-mask').style.display = 'none';
+        document.getElementById('result-section').style.display = 'block';
+
+        const getF = (a, b) => scores[a] >= scores[b] ? a : b;
+        const type = getF('E','I') + getF('S','N') + getF('T','F') + getF('J','P');
+        
+        // 核心算分公式
+        const finalScore = Math.round(500 + ((totalIntensity - 64) / 128) * 350);
+        
+        let currScore = 500;
+        const scoreEl = document.getElementById('final-score');
+        const scoreTimer = setInterval(() => {
+            currScore += 15;
+            if(currScore >= finalScore) { scoreEl.innerText = finalScore; clearInterval(scoreTimer); }
+            else { scoreEl.innerText = currScore; }
+        }, 20);
+
+        const res = metaDb[type];
+        
+        document.getElementById('final-code').innerText = `${type} · ${res.alias}`;
+        document.getElementById('final-tags').innerHTML = res.tags.map(t => `<div class="glass-tag">${t}</div>`).join('');
+        document.getElementById('final-motto').innerText = res.motto;
+        
+        // 生成详细百分比用于动态解析
+        const getPct = (a, b) => Math.round((scores[a] / Math.max(scores[a]+scores[b], 1)) * 100);
+        const pctData = {
+            'E': getPct('E','I'), 'I': getPct('I','E'),
+            'S': getPct('S','N'), 'N': getPct('N','S'),
+            'T': getPct('T','F'), 'F': getPct('F','T'),
+            'J': getPct('J','P'), 'P': getPct('P','J')
+        };
+
+        // 注入千人千面解析
+        document.getElementById('final-desc').innerHTML = generateDynamicAnalysis(type, finalScore, pctData);
+
+        drawRadar([
+            { l:'外倾(E)', v:scores.E+5 }, { l:'直觉(N)', v:scores.N+5 }, 
+            { l:'思考(T)', v:scores.T+5 }, { l:'计划(J)', v:scores.J+5 },
+            { l:'内倾(I)', v:scores.I+5 }, { l:'实感(S)', v:scores.S+5 }, 
+            { l:'情感(F)', v:scores.F+5 }, { l:'随性(P)', v:scores.P+5 }
+        ]);
+
+        document.getElementById('traits-container').innerHTML = [
+            { n: '能量来源 (E vs I)', p: pctData['E'] },
+            { n: '认知方式 (S vs N)', p: pctData['S'] },
+            { n: '决策依据 (T vs F)', p: pctData['T'] },
+            { n: '生活方式 (J vs P)', p: pctData['J'] }
+        ].map(b => `
+            <div class="bar-row">
+                <div class="bar-text"><span>${b.n}</span><span>${b.p}% 偏好</span></div>
+                <div class="bar-bg"><div class="bar-fill" style="width: ${b.p}%"></div></div>
+            </div>
+        `).join('');
+    }
+
+    function drawRadar(data) {
+        const size = 280; const center = size/2; const radius = 85;
+        const points = data.map((d, i) => {
+            const angle = (Math.PI*2/8)*i - Math.PI/2;
+            const r = (d.v/55)*radius + 20; 
+            return `${center + r*Math.cos(angle)},${center + r*Math.sin(angle)}`;
+        }).join(' ');
+        const grid = [1, 0.66, 0.33].map(f => data.map((_, i) => {
+            const angle = (Math.PI*2/8)*i - Math.PI/2;
+            return `${center + radius*f*Math.cos(angle)},${center + radius*f*Math.sin(angle)}`;
+        }).join(' '));
+
+        document.getElementById('radar-container').innerHTML = `
+            <svg width="${size}" height="${size}">
+                <defs><linearGradient id="polyGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="rgba(59, 130, 246, 0.5)" /><stop offset="100%" stop-color="rgba(29, 78, 216, 0.1)" /></linearGradient></defs>
+                ${grid.map(g => `<polygon points="${g}" fill="none" stroke="#E2E8F0" stroke-width="1"/>`).join('')}
+                ${data.map((_, i) => `<line x1="${center}" y1="${center}" x2="${center+radius*Math.cos((Math.PI*2/8)*i - Math.PI/2)}" y2="${center+radius*Math.sin((Math.PI*2/8)*i - Math.PI/2)}" stroke="#E2E8F0" stroke-dasharray="4 4"/>`).join('')}
+                <polygon points="${points}" fill="url(#polyGrad)" stroke="var(--primary)" stroke-width="2.5" style="filter: drop-shadow(0 0 10px rgba(37,99,235,0.4));" />
+                ${data.map((d, i) => `<circle cx="${center + ((d.v/55)*radius + 20)*Math.cos((Math.PI*2/8)*i - Math.PI/2)}" cy="${center + ((d.v/55)*radius + 20)*Math.sin((Math.PI*2/8)*i - Math.PI/2)}" r="4" fill="#fff" stroke="var(--primary)" stroke-width="2"/>`).join('')}
+                ${data.map((d, i) => `<text x="${center + (radius+28)*Math.cos((Math.PI*2/8)*i - Math.PI/2)}" y="${center + (radius+28)*Math.sin((Math.PI*2/8)*i - Math.PI/2)+4}" font-size="12" font-weight="600" text-anchor="middle" fill="#64748B">${d.l}</text>`).join('')}
+            </svg>
+        `;
+    }
+
+    renderQuiz();
+</script>
+</body>
+</html>
